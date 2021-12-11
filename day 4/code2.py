@@ -1,69 +1,79 @@
+# From here on I'll use better python methods since I've gotten used to the basic syntax
 import re
 
 
-def hasWon(bingo_board: list[list[str]], bingo_moves: list[str]):
-    row_count = len(bingo_board)
-    column_count = len(bingo_board[0])
-
-    # Row loop
-    for i in range(row_count - 1):
-        current_row = bingo_board[i]
-        row_elements_remaining = column_count
-        # Loop to check the number of row elements that still haven't been matched
-        for row_item in current_row:
-            for move in bingo_moves:
-                if row_item == move:
-                    row_elements_remaining -= 1
-                    break
-            else:
-                continue
-            break
-        if row_elements_remaining == 0:
-            return True
-    # Column loop
-    for i in range(column_count - 1):
-        col_elements_remaining = row_count
-        for j in range(row_count - 1):
-            for move in bingo_moves:
-                if bingo_board[j][i] == move:
-                    col_elements_remaining -= 1
-        if col_elements_remaining == 0:
-            return True
-    return False
+def parse_input(raw: str) -> (list[int], list[str]):
+    arr = raw.split("\n\n")
+    total_bingo_moves = list(map(lambda move: int(move), arr.pop(0).split(",")))
+    bingo_boards = arr
+    return total_bingo_moves, bingo_boards
 
 
-with open("input.txt") as file:
-    raw = file.read()
-    raw_data = raw.split("\n\n")
-    total_bingo_moves = raw_data.pop(0).split(",")
-    # Messy one-liner used to convert the input into a list of boards which are a list of rows which are a list of
-    # tuples. The first tuple element is the number, the second whether or not it's been drawn yet There are other
-    # ways to implement this that are probably more efficient but I'm not going for efficiency
-    bingo_boards = list(
-        map(lambda x: list(map(lambda y: re.split("\\s+", str.strip(y)), x.split("\n"))),
-            raw_data))
-    last_winner_rounds = 0
-    winner_board = None
-    last_called_number = None
-    for board in bingo_boards:
-        winning_round = len(total_bingo_moves) + 1
-        for i in range(len(total_bingo_moves)):
-            if hasWon(board, total_bingo_moves[:i + 1]):
-                winning_round = i
-                break
-        if winning_round > last_winner_rounds:
-            last_winner_rounds = winning_round
-            winner_board = board
-            last_called_number = total_bingo_moves[:i + 1]
-    total_score = 0
-    print(winner_board)
-    for winner_row in winner_board:
-        for winner_item in winner_row:
-            is_unmarked = True
-            for bingo_move in total_bingo_moves[:last_winner_rounds]:
-                if winner_item == bingo_move:
-                    is_unmarked = False
-            if is_unmarked:
-                total_score += int(winner_item)
-    # Bigger than 13024
-    print("Answer: {}".format(int(total_bingo_moves[last_winner_rounds-1]) * total_score))
+class Board:
+
+    def __init__(self, data: list[list[int]]):
+        self.data = data
+        self.row_count = len(data)
+        self.col_count = len(data[0])
+        self.marked = [[False] * self.col_count for i in range(self.row_count)]
+
+    def mark_num(self, number: int):
+        for row in range(self.row_count):
+            for col in range(self.col_count):
+                if self.data[row][col] == number:
+                    self.marked[row][col] = True
+
+    def has_won(self) -> bool:
+        # Checks rows (the meaning of this code is 'any_row_won is whether all columns in any row are marked')
+        any_row_won = any(all(self.marked[row][col] for col in range(self.col_count)) for row in range(self.row_count))
+        # Checks columns (the meaning of this code is 'any_row_won is whether all rows in any column are marked')
+        any_col_won = any(all(self.marked[row][col] for row in range(self.row_count)) for col in range(self.col_count))
+        return any_row_won or any_col_won
+
+    def sum_unmarked(self) -> int:
+        # Long method
+        """
+        total = 0
+        for row in range(self.row_count):
+            for col in range(self.col_count):
+                if not self.marked[row][col]:
+                    total += self.data[row][col]
+        return total
+        """
+        # Short method
+        return sum(sum(self.data[row][col] for col in range(self.col_count) if not self.marked[row][col]) for row in
+                   range(self.row_count))
+
+    @classmethod
+    def deserialize(cls, data: str):
+        parsed = list(map(
+            lambda row: list(map(lambda value: int(value), re.split("\\s+", str.strip(row))))
+            , data.split("\n")))
+        return cls(parsed)
+
+
+if __name__ == "__main__":
+    with open("input.txt") as file:
+        raw_data = file.read()
+    with open("example.txt") as file:
+        raw_example_data = file.read()
+
+    # A variable used to choose which one of the two to use
+    # Example data is used to see if the code works
+    use_example_data = False
+
+    bingo_moves, raw_boards = parse_input(raw_example_data if use_example_data else raw_data)
+
+    boards = [Board.deserialize(board) for board in raw_boards]
+    boards_won = [False] * len(boards)
+
+    # We need to find the last board which wins
+    for number in bingo_moves:
+        for i, board in enumerate(boards):
+            board.mark_num(number)
+            if board.has_won():
+                boards_won[i] = True
+                if all(boards_won):
+                    print(f"{number} was the number picked that made the last board win!")
+                    print("Score: {}".format(board.sum_unmarked() * number))
+                    exit()

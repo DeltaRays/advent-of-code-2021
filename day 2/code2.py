@@ -10,13 +10,12 @@ with open("input.txt") as f:
 
     for i in array:
         found = re.findall("(\\d+)", i)
-        print(found)
         value = int(found[0])
         if i.startswith("forward"):
             depth += aim * value
             x += value
-        if i.startswith("down"):
+        elif i.startswith("down"):
             aim += value
-        if i.startswith("up"):
+        elif i.startswith("up"):
             aim -= value
-    print(x * depth)
+    print("Result: {}".format(x * depth))

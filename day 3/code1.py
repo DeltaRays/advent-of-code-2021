@@ -3,19 +3,18 @@ with open("input.txt") as f:
     array = raw.split("\n")
     length = len(array)
 
-    data = [0] * len(array[0])
+    bit1Count = [0] * len(array[0])
 
-    print(len(data))
 
     for i in array:
         for j in range(len(i)):
-            data[j] += int(i[j])
+            bit1Count[j] += int(i[j])
     print(length)
 
-    gamma = [''] * len(data)
-    epsilon = [''] * len(data)
-    for i in range(len(data)):
-        if (data[i] / length) >= 0.5:
+    gamma = [''] * len(bit1Count)
+    epsilon = [''] * len(bit1Count)
+    for i in range(len(bit1Count)):
+        if (bit1Count[i] / length) >= 0.5:
             gamma[i] = '1'
             epsilon[i] = '0'
         else:

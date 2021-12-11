@@ -42,4 +42,4 @@ with open("input.txt") as f:
 
     o2DecimalRating = int(o2GenRating[0], 2)
     co2DecimalRating = int(co2ScrubberRating[0], 2)
-    print(o2DecimalRating*co2DecimalRating)
+    print("Result: {}".format(o2DecimalRating*co2DecimalRating))
