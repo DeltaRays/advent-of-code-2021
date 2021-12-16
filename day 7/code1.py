@@ -12,3 +12,7 @@ if __name__ == "__main__":
         raw_data = raw_example_data
     else:
         raw_data = raw_input_data
+    parsed_data = [int(dist) for dist in raw_data.split(",")]
+
+    value = min([sum([abs(v - x) for x in parsed_data]) for v in range(len(parsed_data))])
+    print(f"Answer: {value}")
