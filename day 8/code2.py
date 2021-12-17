@@ -48,8 +48,19 @@ if __name__ == "__main__":
                 corrispondence[8] = word
                 inpt.remove(word)
         for word in inpt:
-            if len(word) == 5:
-                # If there are exactly 2 duplicate items it's a 3
-                if len(set([c for c in word] + [c for c in corrispondence[1]])) == 5:
-                    corrispondence[3] = word
-                    inpt.remove(word)
+            if len(word) == 5 and len(set([c for c in word] + [c for c in corrispondence[1]])) == 5:
+                corrispondence[3] = word
+                inpt.remove(word)
+        top_right_segment: str = ""
+        for word in inpt:
+            if len(word) == 6:
+                # If it's a 6 this means that it doesn't have only a segment 1 does (this also lets us afterwards get
+                # 2 and 5
+                chars_in_1_in_6 = [char not in word for char in corrispondence[1]]
+                if any(chars_in_1_in_6):
+                    corrispondence[6] = word
+                    top_right_segment = [i for (v, i) in enumerate(corrispondence[1]) if chars_in_1_in_6[v]][0]
+        for word in inpt:
+            if len(word) ==5 and word.__contains__()
+
+        print(corrispondence)
