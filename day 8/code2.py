@@ -60,7 +60,5 @@ if __name__ == "__main__":
                 if any(chars_in_1_in_6):
                     corrispondence[6] = word
                     top_right_segment = [i for (v, i) in enumerate(corrispondence[1]) if chars_in_1_in_6[v]][0]
-        for word in inpt:
-            if len(word) ==5 and word.__contains__()
 
         print(corrispondence)
